@@ -1,4 +1,4 @@
-﻿/*
+/*
 ██████╗ ██╗   ██╗     █████╗ ██╗     ██████╗ ██╗  ██╗ █████╗  ██████╗  ██████╗ ██████╗ 
 ██╔══██╗╚██╗ ██╔╝    ██╔══██╗██║     ██╔══██╗██║  ██║██╔══██╗██╔════╝ ██╔═══██╗██╔══██╗
 ██████╔╝ ╚████╔╝     ███████║██║     ██████╔╝███████║███████║██║  ███╗██║   ██║██║  ██║
@@ -106,7 +106,6 @@ namespace GodJungleTracker
         public static int PlayingDragonSound;
         public static int BufferBaronSound;
         public static int PlayingBaronSound;
-
         public static bool timeronmap;
         public static bool timeronminimap;
         public static int circleradius;
@@ -116,6 +115,7 @@ namespace GodJungleTracker
         public static Color colordead;
         public static Color colorguessed;
         public static int circlewidth;
+        public static int adcirclewidth;
         public static bool trackonminimap;
 
         public static ColorBGRA white = new ColorBGRA(255, 255, 255, 255);
@@ -1122,12 +1122,12 @@ namespace GodJungleTracker
 
                     timeronmap = _menu.Item("timeronmap").GetValue<bool>();
                     timeronminimap = _menu.Item("timeronminimap").GetValue<bool>();
-                    circleradius = _menu.Item("circleradius").GetValue<Slider>().Value;
                     colorattacking = _menu.Item("colorattacking").GetValue<Color>();
                     colortracked = _menu.Item("colortracked").GetValue<Color>();
                     colordisengaged = _menu.Item("colordisengaged").GetValue<Color>();
                     colordead = _menu.Item("colordead").GetValue<Color>();
                     colorguessed = _menu.Item("colorguessed").GetValue<Color>();
+                    adcirclewidth = _menu.Item("adcirclewidth").GetValue<Slider>().Value;
                     circlewidth = _menu.Item("circlewidth").GetValue<Slider>().Value;
                     trackonminimap = _menu.Item("TrackonMinimap").GetValue<bool>();
 
@@ -1795,13 +1795,27 @@ namespace GodJungleTracker
 
                     try
                     {
+                        var isEpic = camp.Name == ("Baron") || camp.Name == ("Dragon");
+                        circleradius = 0;
+                        {
+                            if (isEpic)
+                            {
+                                circleradius = _menu.Item("dbcircleradius").GetValue<Slider>().Value;
+                            }
+                            else
+                            {
+                                circleradius = _menu.Item("circleradius").GetValue<Slider>().Value;
+                            }
+
+                        }
+
                         if (camp.State == 1)
                         {
-                            Utility.DrawCircle(camp.Position, circleradius, colorattacking, circlewidth + 1, 30, true);
+                            Utility.DrawCircle(camp.Position, circleradius, colorattacking, adcirclewidth, 30, true);
                         }
                         else if (camp.State == 2)
                         {
-                            Utility.DrawCircle(camp.Position, circleradius, colordisengaged, circlewidth + 1, 30, true);
+                            Utility.DrawCircle(camp.Position, circleradius, colordisengaged, adcirclewidth, 30, true);
                         }
                         else if (camp.State == 3 && (camp.IsRanged || (camp.Name == "Dragon" || camp.Name == "Crab" || camp.Name == "Spider")))
                         {
@@ -1876,6 +1890,8 @@ namespace GodJungleTracker
                 draw.SubMenu("Color").AddItem(new MenuItem("colordisengaged", "Camp is Disengaged").SetValue(Color.FromArgb(255, 255, 210, 0)));
                 draw.SubMenu("Color").AddItem(new MenuItem("colordead", "Camp is Dead").SetValue(Color.FromArgb(255, 200, 200, 200)));
                 _menu.SubMenu("Drawing").AddItem(new MenuItem("circleradius", "Circle Radius").SetValue(new Slider(300, 1, 500)));
+                _menu.SubMenu("Drawing").AddItem(new MenuItem("dbcircleradius", "Dragon & Baron Circle Radius").SetValue(new Slider(450, 1, 800)));
+                _menu.SubMenu("Drawing").AddItem(new MenuItem("adcirclewidth", "Attacking & Disengaged Circle Width").SetValue(new Slider(2, 1, 4)));
                 _menu.SubMenu("Drawing").AddItem(new MenuItem("circlewidth", "Circle Width").SetValue(new Slider(1, 1, 4)));
                 _menu.SubMenu("Drawing").AddItem(new MenuItem("TrackonMinimap", "Draw on Minimap").SetValue(true));
 
